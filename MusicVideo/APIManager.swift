@@ -19,18 +19,45 @@ class APIManager {
 //        let session = NSURLSession.sharedSession()
         let url = NSURL(string: urlString)!
         
-        let task = session.dataTaskWithURL(url) {
+        let task = session.dataTaskWithURL(url){
             (data, response, error) -> Void in
             
-            dispatch_async(dispatch_get_main_queue()) {
-                if error != nil {
+            if error != nil {
+                dispatch_async(dispatch_get_main_queue()) {
                     completion(result: (error!.localizedDescription))
-                } else {
-                    completion(result: "Successful NSURLSession")
-                    print(data)
+                }
+            } else {
+                // Added for JSONSerialization
+                print(data)
+                
+                do {
+                    // AllowFragments - top levelobject is not Array or Dictionary.
+                    // Any type of Value
+                    // NSJSONSerialization requires the Do / Try / Catch
+                    // Converts NSData into JSON object and cast it into a dictionary
+                    
+                    if let json = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments) as? [String: AnyObject] {
+                        
+                        // Print
+                        print(json)
+                        
+                        let priority = DISPATCH_QUEUE_PRIORITY_HIGH
+                        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+                            dispatch_async(dispatch_get_main_queue()) {
+                                completion(result: "Successful JSONSerialization")
+                            }
+                        }
+                        // End of Serialization
+                    }
+                } catch {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        completion(result: "Error in JSONSerialization")
+                    }
+                  }
+                
                 }
             }
-        }
         task.resume()
-    }
+        }
+    
 }
