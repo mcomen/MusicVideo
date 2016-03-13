@@ -15,6 +15,12 @@ class Videos {
     private var _vImageUrl: String
     private var _vVideoUrl: String
     
+    // This variable gets created from the UI
+    var vImageData: NSData?
+    
+    // My Initializer
+    private var artistsNames: String
+    
     // Make a getter
     var vName: String {
         return _vName
@@ -28,10 +34,24 @@ class Videos {
         return _vVideoUrl
     }
     
+    var artist: String {
+        return artistsNames
+    }
+    
     init(data: JSONDictionary) {
         
         // If we do not initialize all properties we will get error message
         // Return from initializer without initializing all stored properties
+        
+        
+        // Artist Names
+        if let nameOfArtist = data["im:artist"] as? JSONDictionary,
+            artist = nameOfArtist["label"] as? String {
+            self.artistsNames = artist
+        } else {
+            artistsNames = ""
+        }
+        
         
         // Video Name 
         if let name = data["im:name"] as? JSONDictionary,
